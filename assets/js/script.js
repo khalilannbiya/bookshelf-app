@@ -1,15 +1,21 @@
 const books = [];
 
+const SAVED_EVENT = "saved-book";
+const STORAGE_KEY = "BOOKSHELF_APP";
 const RENDER_EVENT = "render-books";
 
 document.addEventListener("DOMContentLoaded", function () {
    const submitForm = document.getElementById("form");
    submitForm.addEventListener("submit", function (e) {
-      e.preventDefault();
+      // e.preventDefault(); // dihilangkan karena agar form menjadi kosong kembali berhubung data sudah disimpan di web storage
       addBook();
    });
 
    filterBook();
+
+   if (isStorageExist()) {
+      loadDataFromStorage();
+   }
 });
 
 function addBook() {
@@ -22,9 +28,8 @@ function addBook() {
    const bookObject = toObjectBook(generateID, title, author, year, finished);
    books.push(bookObject);
 
-   // console.log(title, author, year, finished, generateID);
-   // console.log(books);
    document.dispatchEvent(new Event(RENDER_EVENT));
+   saveData();
 }
 
 function generateId() {
@@ -32,14 +37,14 @@ function generateId() {
    return +new Date();
 }
 
-function toObjectBook(id, title, author, year, isFinished) {
+function toObjectBook(id, title, author, year, isComplete) {
    // function for create object book
    return {
       id,
       title,
       author,
       year,
-      isFinished,
+      isComplete,
    };
 }
 
@@ -53,7 +58,7 @@ document.addEventListener(RENDER_EVENT, function () {
    for (const book of books) {
       const bookElement = makeBookContainer(book);
 
-      if (!book.isFinished) {
+      if (!book.isComplete) {
          unfinishedReadingBooksList.append(bookElement);
       } else {
          finishedReadingBooksList.append(bookElement);
@@ -76,7 +81,7 @@ function makeBookContainer(bookObject) {
    bookContainer.append(textTitle, textAuthor, textYear);
    bookContainer.setAttribute("id", `book-${bookObject.id}`);
 
-   if (bookObject.isFinished) {
+   if (bookObject.isComplete) {
       const removeBook = document.createElement("button");
       removeBook.innerText = "Hapus";
       removeBook.classList.add("remove-book");
@@ -133,18 +138,18 @@ function removeBookItem(bookId) {
       books.splice(bookTarget, 1);
 
       document.dispatchEvent(new Event(RENDER_EVENT));
+      saveData();
    }
 }
 
 function backToReadBook(bookId) {
    const bookTarget = findBook(bookId);
 
-   // console.log(bookTarget);
-
    if (bookTarget == null) return;
 
-   bookTarget.isFinished = false;
+   bookTarget.isComplete = false;
    document.dispatchEvent(new Event(RENDER_EVENT));
+   saveData();
 }
 
 function finishedRead(bookId) {
@@ -152,8 +157,9 @@ function finishedRead(bookId) {
 
    if (bookTarget == null) return;
 
-   bookTarget.isFinished = true;
+   bookTarget.isComplete = true;
    document.dispatchEvent(new Event(RENDER_EVENT));
+   saveData();
 }
 
 function filterBook() {
@@ -162,8 +168,6 @@ function filterBook() {
       const valueFilter = filter.value.toLowerCase();
 
       const bookTarget = findBookBySearch(valueFilter);
-
-      // console.log(bookTarget);
 
       if (bookTarget == null) {
          document.dispatchEvent(new Event(RENDER_EVENT));
@@ -177,7 +181,7 @@ function filterBook() {
          for (const book of bookTarget) {
             const bookElement = makeBookContainer(book);
 
-            if (!book.isFinished) {
+            if (!book.isComplete) {
                unfinishedReadingBooksList.append(bookElement);
             } else {
                finishedReadingBooksList.append(bookElement);
@@ -221,4 +225,37 @@ function cariIndexBuku(bookId) {
    }
 
    return -1;
+}
+
+function saveData() {
+   if (isStorageExist()) {
+      const parsed = JSON.stringify(books);
+      localStorage.setItem(STORAGE_KEY, parsed);
+      document.dispatchEvent(new Event(SAVED_EVENT));
+   }
+}
+
+function isStorageExist() {
+   if (typeof Storage === undefined) {
+      alert("Browser Anda tidak mendukung local storage");
+      return false;
+   }
+   return true;
+}
+
+document.addEventListener(SAVED_EVENT, function () {
+   console.log(localStorage.getItem(STORAGE_KEY));
+});
+
+function loadDataFromStorage() {
+   const serializedData = localStorage.getItem(STORAGE_KEY);
+   let data = JSON.parse(serializedData);
+
+   if (data !== null) {
+      for (const book of data) {
+         books.push(book);
+      }
+   }
+
+   document.dispatchEvent(new Event(RENDER_EVENT));
 }
