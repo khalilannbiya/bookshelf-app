@@ -22,8 +22,8 @@ function addBook() {
    const bookObject = toObjectBook(generateID, title, author, year, finished);
    books.push(bookObject);
 
-   console.log(title, author, year, finished, generateID);
-   console.log(books);
+   // console.log(title, author, year, finished, generateID);
+   // console.log(books);
    document.dispatchEvent(new Event(RENDER_EVENT));
 }
 
@@ -161,7 +161,7 @@ function filterBook() {
    filter.addEventListener("input", function () {
       const valueFilter = filter.value.toLowerCase();
 
-      const bookTarget = findBookByTitle(valueFilter);
+      const bookTarget = findBookBySearch(valueFilter);
 
       // console.log(bookTarget);
 
@@ -187,12 +187,16 @@ function filterBook() {
    });
 }
 
-function findBookByTitle(bookName) {
+function findBookBySearch(keyword) {
    const totalBook = [];
    for (const book of books) {
-      if (book.title.toLowerCase() == bookName) {
+      if (book.title.toLowerCase() == keyword) {
          totalBook.push(book);
-      }
+      } else if (book.author.toLowerCase() == keyword) {
+         totalBook.push(book);
+      } else if (book.year.toLowerCase() == keyword) {
+         totalBook.push(book);
+      } else;
    }
    if (totalBook.length === 0) {
       return null;

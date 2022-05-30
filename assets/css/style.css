@@ -163,7 +163,18 @@ input[type=text], input[type=number], .btn-submit:focus {
 }
 
 .search-book {
+  width: 100%;
+}
+
+.search-book form {
+  width: 80%;
   margin-top: 2rem;
+  margin: 2rem auto 0 auto;
+}
+
+.search-book input {
+  width: 100%;
+  padding: 15px;
 }
 
 @media only screen and (max-width: 1024px) {
@@ -175,11 +186,13 @@ input[type=text], input[type=number], .btn-submit:focus {
     width: 100%;
   }
 
-  .list-item {
-    width: 90%;
-  }
-
   .form {
     width: 100%;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .flex-rak {
+    flex-wrap: wrap;
   }
 }
