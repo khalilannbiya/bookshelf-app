@@ -139,7 +139,7 @@ function removeBookItem(bookId) {
 function backToReadBook(bookId) {
    const bookTarget = findBook(bookId);
 
-   console.log(bookTarget);
+   // console.log(bookTarget);
 
    if (bookTarget == null) return;
 
@@ -163,7 +163,7 @@ function filterBook() {
 
       const bookTarget = findBookByTitle(valueFilter);
 
-      console.log(bookTarget);
+      // console.log(bookTarget);
 
       if (bookTarget == null) {
          document.dispatchEvent(new Event(RENDER_EVENT));
@@ -174,24 +174,30 @@ function filterBook() {
          const finishedReadingBooksList = document.getElementById("finished-book");
          finishedReadingBooksList.innerHTML = "";
 
-         const bookElement = makeBookContainer(bookTarget);
+         for (const book of bookTarget) {
+            const bookElement = makeBookContainer(book);
 
-         if (!bookTarget.isFinished) {
-            unfinishedReadingBooksList.append(bookElement);
-         } else {
-            finishedReadingBooksList.append(bookElement);
+            if (!book.isFinished) {
+               unfinishedReadingBooksList.append(bookElement);
+            } else {
+               finishedReadingBooksList.append(bookElement);
+            }
          }
       }
    });
 }
 
 function findBookByTitle(bookName) {
+   const totalBook = [];
    for (const book of books) {
       if (book.title.toLowerCase() == bookName) {
-         return book;
+         totalBook.push(book);
       }
    }
-   return null;
+   if (totalBook.length === 0) {
+      return null;
+   }
+   return totalBook;
 }
 
 function findBook(bookId) {
